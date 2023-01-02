@@ -5,5 +5,4 @@ To use the calculator, you need to type a expression (green text that appears in
 
 Bugs that I'm going to fix soon:
 
-- button "±" is mentally unstable
 - some problems with parentheses

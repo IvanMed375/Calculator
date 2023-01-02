@@ -184,14 +184,13 @@ public class Calculator extends JFrame {
                 return;
             }
             if (expression.isEmpty() || expression.charAt(length - 1) == '(' ||
-                    rightParenthesesCounterWrapper.counter == leftParenthesesCounterWrapper.counter ||
                     expression.charAt(length - 1) == '\u00D7' ||
                     expression.charAt(length - 1) == '\u00F7' ||
                     expression.charAt(length - 1) == '\u002D' ||
                     expression.charAt(length - 1) == '\u002B') {
                 leftParenthesesCounterWrapper.counter++;
                 EquationLabel.setText(expression + "(");
-            } else {
+            } else if (leftParenthesesCounterWrapper.counter != 0){
                 rightParenthesesCounterWrapper.counter++;
                 EquationLabel.setText(expression + ")");
             }
@@ -248,19 +247,13 @@ public class Calculator extends JFrame {
         plusMinus.addActionListener(e -> {
             String expression = EquationLabel.getText();
             int length = expression.length();
-            if (expression.isEmpty()) {
-                EquationLabel.setText("(-");
-                leftParenthesesCounterWrapper.counter++;
-                return;
-            }
             if (expression.equals("(-")) {
                 EquationLabel.setText("");
                 leftParenthesesCounterWrapper.counter--;
                 return;
             }
-            if (expression.charAt(length - 1) == '(') {
-                EquationLabel.setText(expression + "(-");
-                leftParenthesesCounterWrapper.counter++;
+            if (expression.isEmpty() || expression.charAt(length - 1) == '(') {
+                return;
             }
             char[] charArray = expression.toCharArray();
             for (int i = charArray.length - 1; i > -1; i--) { // adding 0. or .0 if needed
@@ -283,8 +276,9 @@ public class Calculator extends JFrame {
                 }
             }
             int i = length - 1;
-            if (expression.charAt(length - 1) == ')') { // in this case i becomes the position of
-                // the ( before -
+            if (expression.charAt(length - 1) == ')') {
+                // case for an expression with several parentheses at the end
+                // in this case i becomes the position of the ( before -
                 int counter = 1;
                 while (counter > 0) {
                     /*if (i < 0) {
@@ -298,9 +292,10 @@ public class Calculator extends JFrame {
                     }
                 }
             } else if (Character.isDigit(expression.charAt(length - 1)) || expression.charAt(length - 1) == '.') {
+                // case when an expression ends with a number
                 // in this case i becomes the position of the first digit of the first number in parentheses
-                while (Character.isDigit(charArray[i]) || charArray[i] == '.') {
-                    if (i == 0) {
+                while (Character.isDigit(charArray[i - 1]) || charArray[i - 1] == '.') {
+                    if (i == 1) {
                         break;
                     }
                     i--;
@@ -315,14 +310,13 @@ public class Calculator extends JFrame {
                 expression = expression.substring(0, i) + "(" + "\u002D" +
                         expression.substring(i, length) /*+ ")"*/;
                 leftParenthesesCounterWrapper.counter++;
+            } else if (charArray[length - 1] == ')') {
+                expression = expression.substring(0, i) + expression.substring(i + 2, length - 1);
+                rightParenthesesCounterWrapper.counter--;
             } else {
-                if (charArray[length - 1] == ')') {
-                    expression = expression.substring(0, i) + expression.substring(i + 2, length - 1);
-                    rightParenthesesCounterWrapper.counter--;
-                } else {
-                    expression = expression.substring(0, i) + expression.substring(i + 2, length);
-                }
+                expression = expression.substring(0, i) + expression.substring(i + 2, length);
             }
+
 
             EquationLabel.setText(expression);
         });
